@@ -37,6 +37,7 @@ const userSchema = new mongoose.Schema(
     //   enum: ["Football", "Basketball", "Ice Hockey", "Motorsports"],
     //   default: "Football",
     // },
+    verificationCode:{type: String},
     newPassword: { type: String },
     password2: { type: String },
     isVerified: { type: Boolean, default: false },

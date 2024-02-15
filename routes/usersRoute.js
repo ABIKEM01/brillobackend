@@ -31,7 +31,7 @@ router.route("/update/:id").put(protect, updateUser);
 
 
 router.route("/resetpassword/:id/:token").post(resetPassword);
-router.route(`/verify/:id`).get(verifyEmail);
+router.route(`/verify/:code`).get(verifyEmail);
 
 router.route("/forgot-password").post(forgotPassword);
 export default router;

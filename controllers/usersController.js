@@ -51,7 +51,8 @@ const createUser = async (req, res) => {
     specialChars: false,
   });
   // const link = `https://cityshoppa-lemon.vercel.app/reset-password?id=${user.email}&token=${verificationCode}`;
-  const link = `https://cityshoppa-lemon.vercel.app/reset-password?token=${verificationCode}`;
+  // const link = `https://cityshoppa-lemon.vercel.app/reset-password?token=${verificationCode}`;
+  const link = `https://brilloapis.onrender.com/api/v1/users/verify?code=${verificationCode}`;
 
   console.log("verificationcode", verificationCode);
   const messageBody = verifytemplate({
@@ -107,41 +108,28 @@ const createUser = async (req, res) => {
 };
 
 const verifyEmail = async (req, res) => {
-  const { id, token, verificationToken } = req.params;
-  console.log("id:", id);
+  try {
+    const { code,id } = req.params;
 
-  // Check if the id parameter is being passed
-  if (!id) {
-    return res.status(400).json({ error: "No id parameter was passed" });
+    // Find user by verification code
+    const user = await User.findOne({ verificationCode: code });
+    // const user = await User.findById(id);
+    console.log("code",user)
+    // console.log("verificationCode",verificationCode)
+
+    if (user) {
+      user.isVerified = true;
+      await user.save();
+      return res.status(200).send('Email verification successful!');
+    } else {
+      return res.status(400).send('Invalid verification code.');
+    }
+  } catch (error) {
+    console.error('Error verifying email:', error);
+    return res.status(500).send('Internal server error.');
   }
-
-  // Check if the id parameter is a valid ObjectId
-  if (!ObjectId.isValid(id)) {
-    return res
-      .status(400)
-      .json({ error: "The id parameter is not a valid ObjectId" });
-  }
-
-  // Convert the id parameter to an ObjectId
-  const idObj = new ObjectId(id);
-
-  // Find the user by id
-  const user = await User.findById(idObj);
-
-  // Check if the user was found
-  if (!user) {
-    return res.status(404).json({ error: "User not found" });
-  }
-
-  // Set the user's isVerified field to true
-  user.isVerified = true;
-
-  // Save the user
-  await user.save();
-
-  // Return a success response
-  res.status(200).json({ message: "Email verified successfully" });
 };
+
 
 //@desc: get all users
 //route: GET /api/v1/users
