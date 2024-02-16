@@ -204,6 +204,7 @@ const loginUser = async (req, res) => {
           username: user.username,
           phone: user.phone,
           role: user.role,
+          interests_id: user.interests_id,
           token: await generateToken(user._id),
         },
       });
