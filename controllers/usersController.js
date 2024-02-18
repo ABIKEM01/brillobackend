@@ -114,7 +114,7 @@ const verifyEmail = async (req, res) => {
     // Find user by verification code
     const user = await User.findOne({ verificationCode: code });
     // const user = await User.findById(id);
-    console.log("code",user)
+    console.log("code2",user)
     // console.log("verificationCode",verificationCode)
 
     if (user) {
