@@ -7,9 +7,9 @@ import { protect, authorizeUser } from "../middleware/auth.js";
 router.route("/create").post(protect,createInterest);
 
 //get all interest
-router.route("/").get(protect, getInterests);
+router.route("/").get(getInterests);
 
 //get single interest
-router.route("/:id").get(protect,getInterest);
+router.route("/:id").get(getInterest);
 
 export default router;
