@@ -15,7 +15,7 @@ import { protect, authorizeUser } from "../middleware/auth.js";
 //get all users route
 router
   .route("/")
-  .get(protect, authorizeUser(["admin", "superadmin"]), getUsers);
+  .get(getUsers);
 
 //create user
 router.route("/register").post(createUser);
