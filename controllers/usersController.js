@@ -14,6 +14,7 @@ import sgMail from "@sendgrid/mail";
 import jwt from "jsonwebtoken";
 import otpGenerator from "otp-generator";
 import path from "path";
+import cron from 'node-cron';
 
 //forgotpassword template
 const emailTemplate = fs.readFileSync(
@@ -60,13 +61,7 @@ const createUser = async (req, res) => {
     email: req.body.username,
     verificationCode: verificationCode,
   });
-  // Send verification email
-  // const msg = {
-  //   to: email,
-  //   from: "babayodea10@gmail.com",
-  //   subject: "Verify Your Email Address",
-  //   text: `Please click the following link to verify your email address: http://yourwebsite.com/verify/${verificationCode}`,
-  // };
+
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(req.body.password, salt);
@@ -343,6 +338,53 @@ const forgotPassword = async (req, res) => {
     res.status(400).json(err);
   }
 };
+
+
+
+
+
+
+
+// Function to fetch users from MongoDB using Mongoose model
+const fetchUsersFromDB = async () => {
+    
+    try {
+       
+        const users = await User.find({}, 'username email').lean();
+        return users;
+    } catch(err) {
+        console.log(err);
+    }
+};
+
+// Function to send email to each user
+const sendEmailToUser = (user) => {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    const msg = {
+        to: user.email,
+        from: 'babayodea10@gmail.com', 
+        subject: 'Daily Update',
+        text: `Hello ${user.username},\n\nThis is your daily update.`,
+        // You can also use HTML content for the email body
+        // html: `<p>Hello ${user.name},</p><p>This is your daily update.</p>`
+    };
+
+    sgMail.send(msg)
+        .then(() => console.log(`Email sent successfully to ${user.email}`))
+        .catch(error => console.error(`Error sending email to ${user.email}:`, error));
+};
+
+// Schedule the task to send emails daily at a specific time (e.g., 8:00 AM)
+cron.schedule('0 8 * * *', async () => {
+    console.log('Sending emails to all users...');
+    try {
+        const users = await fetchUsersFromDB();
+        users.forEach(user => sendEmailToUser(user));
+    } catch (error) {
+        console.error('Error fetching users from the database:', error);
+    }
+});
+
 
 export {
   getUsers,
